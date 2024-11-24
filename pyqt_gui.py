@@ -1,22 +1,26 @@
+"""An experimental GUI to make filling out the data easier."""
+
 import sys
 
 import asyncio
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
+    QGridLayout,
     QWidget,
     QVBoxLayout,
     QFormLayout,
     QPushButton,
     QLineEdit,
-    QDateTimeEdit,
     QTextEdit,
     QMessageBox,
     QLabel,
     QCalendarWidget,
     QHBoxLayout,
+    QDateEdit,
 )
-from PyQt6.QtCore import QDateTime
+from PyQt6.QtCore import QDateTime, QTime, QDate
+from PyQt6.QtWidgets import QTimeEdit, QMenu
 
 
 from kuda_idem_template import Event, send_html_message
@@ -38,32 +42,67 @@ class RequiredLabel(QLabel):
             )  # Grey color for optional fields
 
 
-class DateTimePickerWidget(QWidget):
-    """Custom DateTime picker with calendar popup"""
-
+class TimeSelectMenu(QMenu):
     def __init__(self, parent=None):
         super().__init__(parent)
-        layout = QVBoxLayout(self)
+        self.setStyleSheet("""
+            QMenu {
+                background-color: white;
+                border: 1px solid #C0C0C0;
+                padding: 5px;
+            }
+            QPushButton {
+                background-color: #F5F5F5;
+                border: 1px solid #C0C0C0;
+                border-radius: 3px;
+                padding: 5px;
+                text-align: center;
+                min-width: 60px;
+                color: #333333;
+            }
+            QPushButton:hover {
+                background-color: #0078D7;
+                color: white;
+                border: 1px solid #0078D7;
+            }
+        """)
+
+        # Create a grid of hours
+        layout = QGridLayout()
+        layout.setSpacing(5)  # Add some spacing between buttons
+        self.setLayout(layout)
+
+        # Add hours in a 6x4 grid
+        for hour in range(24):
+            row = hour // 4
+            col = hour % 4
+            hour_btn = QPushButton(f"{hour:02d}:00")
+            hour_btn.clicked.connect(lambda checked, h=hour: self.hour_selected(h))
+            layout.addWidget(hour_btn, row, col)
+
+        # Set a fixed size for the menu
+        self.setFixedSize(layout.sizeHint())
+
+    def hour_selected(self, hour):
+        self.parent().setTime(QTime(hour, 0))
+        self.close()
+
+
+class DateTimePickerWidget(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        # Create DateTime edit
-        self.datetime_edit = QDateTimeEdit(self)
-        self.datetime_edit.setCalendarPopup(True)
+        # Create Date edit with calendar popup
+        self.date_edit = QDateEdit(self)
+        self.date_edit.setCalendarPopup(True)
+        self.date_edit.setDate(QDate.currentDate())
 
-        # Set 24-hour format
-        self.datetime_edit.setDisplayFormat("dd.MM.yyyy HH:00")
-
-        # Get current time and set minutes to 00
-        current = QDateTime.currentDateTime()
-        current = current.addSecs(-current.time().minute() * 60 - current.time().second())
-        self.datetime_edit.setDateTime(current)
-
-        # Customize the calendar popup
+        # Customize calendar
         calendar = QCalendarWidget(self)
         calendar.setGridVisible(True)
         calendar.setVerticalHeaderFormat(QCalendarWidget.VerticalHeaderFormat.NoVerticalHeader)
-
-        # Set explicit styles for the calendar
         calendar.setStyleSheet("""
             QCalendarWidget {
                 background-color: white;
@@ -73,26 +112,50 @@ class DateTimePickerWidget(QWidget):
                 selection-background-color: #0078D7;
                 selection-color: white;
             }
-            /* Style for dates */
-            QCalendarWidget QTableView QTableCornerButton::section {
-                color: #333333;
+        """)
+        self.date_edit.setCalendarWidget(calendar)
+
+        # Create Time edit with custom popup
+        self.time_edit = QTimeEdit(self)
+        self.time_edit.setDisplayFormat("HH:00")
+        current = QTime.currentTime()
+        self.time_edit.setTime(QTime(current.hour(), 0))
+
+        # Create custom button for time selection
+        self.time_button = QPushButton("🕒")
+        self.time_button.setStyleSheet("""
+            QPushButton {
                 background-color: white;
+                border: 1px solid #C0C0C0;
+                border-radius: 3px;
+                padding: 4px 8px;
             }
-            QCalendarWidget QTableView QTableCell {
-                color: #333333;
+            QPushButton:hover {
+                background-color: #F0F0F0;
             }
         """)
+        self.time_button.clicked.connect(self.showTimeMenu)
 
-        self.datetime_edit.setCalendarWidget(calendar)
-        layout.addWidget(self.datetime_edit)
+        layout.addWidget(self.date_edit)
+        layout.addWidget(self.time_edit)
+        layout.addWidget(self.time_button)
+
+    def showTimeMenu(self):
+        menu = TimeSelectMenu(self.time_edit)
+        pos = self.time_button.mapToGlobal(self.time_button.rect().bottomLeft())
+        menu.popup(pos)
 
     def dateTime(self):
-        return self.datetime_edit.dateTime()
+        return QDateTime(self.date_edit.date(), self.time_edit.time())
 
     def setDateTime(self, datetime):
-        # When setting datetime externally, ensure minutes are set to 00
-        datetime = datetime.addSecs(-datetime.time().minute() * 60 - datetime.time().second())
-        self.datetime_edit.setDateTime(datetime)
+        self.date_edit.setDate(datetime.date())
+        # Ensure time is set to the nearest hour
+        time = QTime(datetime.time().hour(), 0)
+        self.time_edit.setTime(time)
+
+    def setTime(self, time):
+        self.time_edit.setTime(time)
 
 
 class PlainTextEdit(QTextEdit):
