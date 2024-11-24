@@ -18,14 +18,10 @@ from telegram.constants import ParseMode
 http_url_adapter = TypeAdapter(HttpUrl)
 Url = Annotated[str, BeforeValidator(lambda value: str(http_url_adapter.validate_python(value)))]
 
-# Modify the start and the end day of the message to be something other than next Friday and
-# next Sunday
-START_DATE: dt.datetime | None = None
-END_DATE: dt.datetime | None = None
-
 
 class Action(Enum):
     """Pick whether write HTML to a file or send in to a Telegram group chat topic."""
+
     LOAD_TO_FILE = auto()
     SEND_MESSAGE = auto()
 
@@ -65,6 +61,7 @@ class Event(BaseModel):
         ticket_link: Optional URL where tickets can be purchased
         ticket_info: Optional information about tickets, defaults to "Билет не нужен."
     """
+
     city: str
     title: str
     title_link: Url | None = None
@@ -182,7 +179,7 @@ def determine_date_range(events: Collection[Event]) -> tuple[dt.datetime, dt.dat
 
 
 def generate_event_page(
-        events: Collection[Event],
+    events: Collection[Event],
 ) -> str:
     """Generate HTML page from events using a Jinja2 template.
 
