@@ -1,5 +1,7 @@
 """An experimental GUI to make filling out the data easier."""
 
+from __future__ import annotations
+
 import sys
 
 import asyncio
