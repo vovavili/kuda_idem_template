@@ -75,19 +75,6 @@ class Event(BaseModel):
     ticket_info: str | None = "Билет не нужен."
 
 
-def get_next_weekend_dates() -> tuple[dt.datetime, dt.datetime]:
-    """Calculate the dates for next weekend (Friday to Sunday).
-
-    Returns:
-        tuple[dt.datetime, dt.datetime]: Start date (Friday) and end date (Sunday)
-    """
-
-    today = dt.datetime.now()
-    friday = today + dt.timedelta((4 - today.weekday()) % 7)
-    sunday = friday + dt.timedelta(days=2)
-    return friday, sunday
-
-
 def get_russian_weekday(date: dt.datetime) -> str:
     """Convert a datetime weekday to its Russian name.
 
