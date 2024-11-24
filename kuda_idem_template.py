@@ -11,7 +11,6 @@ import asyncio
 from pydantic import BaseModel, HttpUrl, SecretStr, BeforeValidator, TypeAdapter
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from jinja2 import Template
-
 from telegram import Bot
 from telegram.constants import ParseMode
 
@@ -156,10 +155,10 @@ def determine_date_range(events: Collection[Event]) -> tuple[dt.datetime, dt.dat
     # Get Sunday (Friday + 2 days)
     sunday = friday + dt.timedelta(days=2)
 
-    # Choose the earlier of Friday and earliest_start for start_date
+    # Choose the earliest of Friday and earliest_start for start_date
     start_date = min(friday, earliest_start)
 
-    # Choose the later of Sunday and latest_end for end_date
+    # Choose the latter of Sunday and latest_end for end_date
     end_date = max(sunday, latest_end)
 
     return start_date, end_date
