@@ -147,8 +147,42 @@ def format_date_range(start_date: dt.datetime, end_date: dt.datetime) -> str:
     )
 
 
+def determine_date_range(events: Collection[Event]) -> tuple[dt.datetime, dt.datetime]:
+    """Determine the start and end dates based on events and weekdays.
+
+    The start date will be either Friday or the earliest event start date, whichever is earlier.
+    The end date will be either Sunday or the latest event end date, whichever is later.
+
+    Args:
+        events: Collection of Event objects
+
+    Returns:
+        tuple[dt.datetime, dt.datetime]: Start date and end date
+    """
+    # Get the earliest and latest event dates
+    earliest_start = min(event.start_datetime for event in events)
+    latest_end = max(event.end_datetime for event in events)
+
+    # Get the Friday of the week containing the earliest event
+    # First get Monday of the week (subtract weekday number)
+    monday = earliest_start - dt.timedelta(days=earliest_start.weekday())
+    # Then add 4 days to get to Friday
+    friday = monday + dt.timedelta(days=4)
+
+    # Get Sunday (Friday + 2 days)
+    sunday = friday + dt.timedelta(days=2)
+
+    # Choose the earlier of Friday and earliest_start for start_date
+    start_date = min(friday, earliest_start)
+
+    # Choose the later of Sunday and latest_end for end_date
+    end_date = max(sunday, latest_end)
+
+    return start_date, end_date
+
+
 def generate_event_page(
-    events: Collection[Event],
+        events: Collection[Event],
 ) -> str:
     """Generate HTML page from events using a Jinja2 template.
 
@@ -158,10 +192,7 @@ def generate_event_page(
     Returns:
         str: Generated HTML content
     """
-    if START_DATE is None or END_DATE is None:
-        start_date, end_date = get_next_weekend_dates()
-    else:
-        start_date, end_date = START_DATE, END_DATE
+    start_date, end_date = determine_date_range(events)
 
     with open("template.j2", mode="r", encoding="utf-8") as f:
         template = Template(f.read())
