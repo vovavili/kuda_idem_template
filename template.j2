@@ -1,0 +1,12 @@
+<meta charset="UTF-8">
+<b>Лучшие вечеринки, {{ date_range }}:</b>
+{% for event in events %}
+──────────────────────────────────────
+<b>{{ event.city }}:</b>
+<b>{% if event.title_link %}<a href="{{ event.title_link }}">{{ event.title }}</a>{% else %}{{ event.title }}{% endif %}</b>
+{% if event.description %}
+<i>{{ event.description }}</i>
+{% endif %}
+<b>Когда:</b> С {{ event.start_datetime.strftime('%d.%m') }}, {{ event.start_datetime.strftime('%H:%M').lstrip('0') }} ({{ get_russian_weekday(event.start_datetime) }}) по {{ event.end_datetime.strftime('%d.%m') }}, {{ event.end_datetime.strftime('%H:%M').lstrip('0') }} ({{ get_russian_weekday(event.end_datetime) }})
+<b>Где:</b> {{ event.venue_name }}, <a href="{{ event.venue_map_link }}">{{ event.venue_address }}</a>
+<b>Билеты:</b> {% if event.ticket_link %}<a href="{{ event.ticket_link }}">купить тут</a>{% else %}{{ event.ticket_info }}{% endif %}{% endfor %}

@@ -1,0 +1,35 @@
+[project]
+name = "kuda_idem_template"
+version = "1.0.0"
+description = "Generate HTML code for 'Куда идём?' and send it via a Telegram bot."
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pydantic[email]>=2.9.2",
+    "pydantic-settings>=2.6.1",
+    "python-telegram-bot>=21.7",
+]
+[project.optional-dependencies]
+lint = [
+    "pylint>=3.3.1", # For now - https://github.com/astral-sh/ruff/issues/970
+]
+test = [
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.24.0",
+    "pytest-mypy-plugins>=3.1.2",
+    "pytest-cov>=6.0.0",
+]
+dev = [
+    "ruff>=0.7.3",
+    "mypy>=1.13.0",
+    "pre-commit-uv>=4.1.4",
+]
+[tool.mypy]
+plugins = ['pydantic.mypy']
+[tool.ruff]
+line-length = 100
