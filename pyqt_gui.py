@@ -338,7 +338,9 @@ class EventInputWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Event Input Form")
-        self.setGeometry(100, 100, 600, 800)
+        # The x,y coordinates (100, 100) will be ignored when centering
+        self.setGeometry(100, 100, 630, 800)
+        self.center_window()
 
         # Create central widget and layout
         central_widget = QWidget()
@@ -553,6 +555,18 @@ class EventInputWindow(QMainWindow):
 
         # Add to form layout (using only one label)
         form_layout.addRow(RequiredLabel("Venue Selection", required=False), venue_layout)
+
+    def center_window(self):
+        # Get the primary screen's geometry
+        screen = QApplication.primaryScreen().geometry()
+        # Get the window's geometry
+        window_geometry = self.frameGeometry()
+        # Calculate the center point of the screen
+        center_point = screen.center()
+        # Move the window's center point to the screen's center point
+        window_geometry.moveCenter(center_point)
+        # Move the window to the calculated position
+        self.move(window_geometry.topLeft())
 
     def create_message_box(
         self,
@@ -826,11 +840,14 @@ class EventInputWindow(QMainWindow):
             # Send the message
             asyncio.run(send_html_message(self.events))
 
-            # Show success message with event count
+            # Clear the events list after successful sending
+            self.events.clear()
+
+            # Show success message
             msg = self.create_message_box(
                 QMessageBox.Icon.Information,
                 "Success",
-                f"Successfully sent {len(self.events)} event(s) to Telegram!",
+                "Successfully sent the events to Telegram!",
             )
             msg.exec()
 
@@ -838,7 +855,10 @@ class EventInputWindow(QMainWindow):
             QApplication.quit()
 
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to send to Telegram:\n{str(e)}")
+            msg = self.create_message_box(
+                QMessageBox.Icon.Critical, "Error", f"Failed to send to Telegram:\n{str(e)}"
+            )
+            msg.exec()
             # Re-enable buttons if there's an error
             self.submit_button.setEnabled(True)
             self.send_telegram_button.setEnabled(True)
