@@ -30,7 +30,6 @@ from PyQt6.QtCore import QDateTime, QTime, QDate, Qt
 from PyQt6.QtWidgets import QTimeEdit, QMenu
 from PyQt6.QtGui import QIcon
 
-
 from kuda_idem_template import Event, send_html_message
 
 
@@ -740,7 +739,7 @@ class EventInputWindow(QMainWindow):
         events_widget = QWidget()
         events_layout = QVBoxLayout(events_widget)
 
-        # Add each event with a remove button
+        # Add each event with control buttons
         for i, event in enumerate(self.events):
             event_box = QGroupBox(f"Event {i + 1}")
             event_layout = QVBoxLayout()
@@ -756,8 +755,55 @@ class EventInputWindow(QMainWindow):
             event_label = QLabel(event_text)
             event_layout.addWidget(event_label)
 
+            # Create button layout
+            button_layout = QHBoxLayout()
+
+            # Add up button
+            up_btn = QPushButton("↑")
+            up_btn.setEnabled(i > 0)  # Disable for first item
+            up_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #17A2B8;
+                    color: white;
+                    border: none;
+                    padding: 5px 10px;
+                    border-radius: 3px;
+                    max-width: 50px;
+                }
+                QPushButton:hover {
+                    background-color: #138496;
+                }
+                QPushButton:disabled {
+                    background-color: #87CEEB;
+                }
+            """)
+            up_btn.clicked.connect(lambda checked, idx=i: self.move_event_up(idx, dialog))
+            button_layout.addWidget(up_btn)
+
+            # Add down button
+            down_btn = QPushButton("↓")
+            down_btn.setEnabled(i < len(self.events) - 1)  # Disable for last item
+            down_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #17A2B8;
+                    color: white;
+                    border: none;
+                    padding: 5px 10px;
+                    border-radius: 3px;
+                    max-width: 50px;
+                }
+                QPushButton:hover {
+                    background-color: #138496;
+                }
+                QPushButton:disabled {
+                    background-color: #87CEEB;
+                }
+            """)
+            down_btn.clicked.connect(lambda checked, idx=i: self.move_event_down(idx, dialog))
+            button_layout.addWidget(down_btn)
+
             # Add remove button
-            remove_btn = QPushButton("Remove Event")
+            remove_btn = QPushButton("Remove")
             remove_btn.setStyleSheet("""
                 QPushButton {
                     background-color: #DC3545;
@@ -772,8 +818,9 @@ class EventInputWindow(QMainWindow):
                 }
             """)
             remove_btn.clicked.connect(lambda checked, idx=i: self.remove_event(idx, dialog))
-            event_layout.addWidget(remove_btn)
+            button_layout.addWidget(remove_btn)
 
+            event_layout.addLayout(button_layout)
             event_box.setLayout(event_layout)
             events_layout.addWidget(event_box)
 
@@ -802,6 +849,24 @@ class EventInputWindow(QMainWindow):
         layout.addWidget(close_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         dialog.exec()
+
+    def move_event_up(self, index: int, dialog: QDialog = None):
+        """Move an event up in the list"""
+        if index > 0:
+            self.events[index], self.events[index - 1] = self.events[index - 1], self.events[index]
+            if dialog:
+                # Refresh the events dialog
+                dialog.close()
+                self.show_events()
+
+    def move_event_down(self, index: int, dialog: QDialog = None):
+        """Move an event down in the list"""
+        if index < len(self.events) - 1:
+            self.events[index], self.events[index + 1] = self.events[index + 1], self.events[index]
+            if dialog:
+                # Refresh the events dialog
+                dialog.close()
+                self.show_events()
 
     def remove_event(self, index: int, dialog: QDialog = None):
         """Remove an event from the list"""
