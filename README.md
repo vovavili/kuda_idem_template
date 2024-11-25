@@ -1,0 +1,1 @@
+Create a "where are we going" Telegram message with proper formatting using an intuitive Qt interface on the fly. 
