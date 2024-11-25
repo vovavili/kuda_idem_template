@@ -643,12 +643,20 @@ class EventInputWindow(QMainWindow):
         # Check required fields are not empty
         for field_name, value in required_fields.items():
             if not value.strip():
+                msg = self.create_message_box(
+                    QMessageBox.Icon.Warning, "Validation Error", f"{field_name} is required!"
+                )
+                msg.exec()
                 return False, f"{field_name} is required!"
 
         # Validate datetime
         start = self.start_datetime.dateTime().toPyDateTime()
         end = self.end_datetime.dateTime().toPyDateTime()
         if end <= start:
+            msg = self.create_message_box(
+                QMessageBox.Icon.Warning, "Validation Error", "End time must be after start time!"
+            )
+            msg.exec()
             return False, "End time must be after start time!"
 
         # Validate URLs if provided
@@ -660,6 +668,12 @@ class EventInputWindow(QMainWindow):
 
         for field_name, url in urls_to_validate.items():
             if url and not url.startswith(("http://", "https://")):
+                msg = self.create_message_box(
+                    QMessageBox.Icon.Warning,
+                    "Validation Error",
+                    f"{field_name} must be a valid URL starting with http:// or https://",
+                )
+                msg.exec()
                 return False, f"{field_name} must be a valid URL starting with http:// or https://"
 
         return True, ""
@@ -669,7 +683,6 @@ class EventInputWindow(QMainWindow):
         # First validate the form
         is_valid, message = self.validate_form()
         if not is_valid:
-            QMessageBox.warning(self, "Validation Error", message)
             return
 
         try:
@@ -703,7 +716,10 @@ class EventInputWindow(QMainWindow):
             self.clear_form()
 
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to add event: {str(e)}")
+            msg = self.create_message_box(
+                QMessageBox.Icon.Critical, "Error", f"Failed to add event: {str(e)}"
+            )
+            msg.exec()
 
     def show_events(self):
         if not self.events:
