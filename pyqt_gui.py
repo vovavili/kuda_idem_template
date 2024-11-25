@@ -28,6 +28,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import QDateTime, QTime, QDate, Qt
 from PyQt6.QtWidgets import QTimeEdit, QMenu
+from PyQt6.QtGui import QIcon
 
 
 from kuda_idem_template import Event, send_html_message
@@ -980,6 +981,7 @@ def main():
                 outline: none;
             }
         """)
+        app.setWindowIcon(QIcon("dutch_rave_bot.ico"))
 
         window = EventInputWindow()
         window.show()
