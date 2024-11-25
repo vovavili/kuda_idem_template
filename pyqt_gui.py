@@ -43,22 +43,15 @@ class VenueInfo:
 
 
 VENUES: dict[str, VenueInfo] = {
-    "Арт-центр WORM": VenueInfo(
-        name="Арт-центр WORM",
-        city="Роттердам",
-        address="Boomgaardsstraat 71",
-        map_link="https://maps.app.goo.gl/3S5DKJii2WiJoN2p6",
-        ticket_link="https://worm.stager.co/web/tickets",
-    ),
-    "Клуб BASIS": VenueInfo(
-        name="Клуб BASIS",
+    "BASIS": VenueInfo(
+        name="BASIS",
         city="Утрехт",
         address="Oudegracht aan de Werf 97",
         map_link="https://maps.app.goo.gl/ziunBp7tArEiSWwa7",
         ticket_link="https://clubbasis.nl/tickets/",
     ),
-    "Клуб Bret": VenueInfo(
-        name="Клуб Bret",
+    "Bret": VenueInfo(
+        name="Bret",
         city="Амстердам",
         address="Orlyplein 76",
         map_link="https://maps.app.goo.gl/32r9j3DEqsfmYyXE6",
@@ -71,124 +64,131 @@ VENUES: dict[str, VenueInfo] = {
         map_link="https://maps.app.goo.gl/X6X6vHUurbpxZ8et5emkade",
         ticket_link="https://hemkade48.nl/agenda/?e-filter-c5ded3a-event_month=november",
     ),
-    "Клуб Der Hintergarten": VenueInfo(
-        name="Клуб Der Hintergarten",
+    "Der Hintergarten": VenueInfo(
+        name="Der Hintergarten",
         city="Амстердам",
         address="Overschiestraat 188",
         map_link="https://maps.app.goo.gl/rkS97gU2YMNePri39",
         ticket_link="https://www.derhintergarten.nl/events",
     ),
-    "Клуб Garage Klub": VenueInfo(
-        name="Клуб Garage Klub",
+    "Garage Klub": VenueInfo(
+        name="Garage Klub",
         city="Антверп",
         address="Noorderlaan 72",
         map_link="https://maps.app.goo.gl/t7utfBmoJwtNtBif7",
         ticket_link="https://agenda.paylogic.com/4e407aa066b044e3a9039771a583e896",
     ),
-    "Клуб Garage Noord": VenueInfo(
-        name="Клуб Garage Noord",
+    "Garage Noord": VenueInfo(
+        name="Garage Noord",
         city="Амстердам",
         address="Gedempt hamerkanaal 40",
         map_link="https://maps.app.goo.gl/HCnFgNhzYbswLicb6",
         ticket_link="https://www.garagenoord.com/club",
     ),
-    "Клуб KABUL à GoGo": VenueInfo(
-        name="Клуб KABUL à GoGo",
+    "KABUL à GoGo": VenueInfo(
+        name="KABUL à GoGo",
         city="Утрехт",
         address="Gietijzerstraat 3",
         map_link="https://maps.app.goo.gl/wzNTDZ5ZSasMEfM9A",
         ticket_link="https://www.kabulagogo.nl/tickets",
     ),
-    "Клуб Laak": VenueInfo(
-        name="Клуб Laak",
+    "Laak": VenueInfo(
+        name="Laak",
         city="Гаага",
         address="Theodor Stangstraat 1",
         map_link="https://maps.app.goo.gl/fFN71thiVRMKKDgE6",
         ticket_link="https://laak.stager.co/web/tickets",
     ),
-    "Клуб Levenslang": VenueInfo(
-        name="Клуб Levenslang",
+    "Levenslang": VenueInfo(
+        name="Levenslang",
         city="Амстердам",
         address="H.J.E. Wenckebachweg 48",
         map_link="https://maps.app.goo.gl/JsjmPJ6E4Fv5Lnrh7",
         ticket_link="https://www.levenslang.amsterdam/en/program",
     ),
-    "Клуб Lofi": VenueInfo(
-        name="Клуб Lofi",
+    "Lofi": VenueInfo(
+        name="Lofi",
         city="Амстердам",
         address="Basisweg 63",
         map_link="https://maps.app.goo.gl/tmrvEycPcNe1fzQp9",
         ticket_link="https://shop.eventix.io/54a986f2-a7ca-46e4-9b0b-9b49f0e4c92a/events",
     ),
-    "Клуб Now & Wow": VenueInfo(
-        name="Клуб Now & Wow",
+    "Now & Wow": VenueInfo(
+        name="Now & Wow",
         city="Роттердам",
         address="Maashaven Zuidzijde 1-2",
         map_link="https://maps.app.goo.gl/D6RQg1CJbVVTTGnK8",
         ticket_link="https://www.maassilo.com/agenda/",
     ),
-    "Клуб Pip": VenueInfo(
-        name="Клуб Pip",
+    "Pip": VenueInfo(
+        name="Pip",
         city="Гаага",
         address="Binckhorstlaan 36",
         map_link="https://maps.app.goo.gl/RHnMwDPaaoxaaEda6",
         ticket_link="https://pipdenhaag.stager.co/web/tickets",
     ),
-    "Клуб RADION": VenueInfo(
-        name="Клуб RADION",
+    "RADION": VenueInfo(
+        name="RADION",
         city="Амстердам",
         address="Louwesweg 1",
         map_link="https://maps.app.goo.gl/BCp1L74yxzfP2zMm7",
         ticket_link="https://radionamsterdam.stager.co/web/tickets",
     ),
-    "Клуб RAUM": VenueInfo(
-        name="Клуб RAUM",
+    "RAUM": VenueInfo(
+        name="RAUM",
         city="Амстердам",
         address="Humberweg 3",
         map_link="https://maps.app.goo.gl/2W543xaXH1gpkrLW8",
         ticket_link="https://www.clubraum.nl/calendar",
     ),
-    "Клуб Shelter": VenueInfo(
-        name="Клуб Shelter",
+    "Shelter": VenueInfo(
+        name="Shelter",
         city="Амстердам",
         address="Overhoeksplein 3",
         map_link="https://maps.app.goo.gl/dRFnNgxbkgg8khb99",
         ticket_link="https://shop.eventix.io/bca0fb30-5c63-11e9-af17-65a0f4e2b9f9/events",
     ),
-    "Клуб Thuishaven": VenueInfo(
-        name="Клуб Thuishaven",
+    "Thuishaven": VenueInfo(
+        name="Thuishaven",
         city="Амстердам",
         address="Contactweg 68",
         map_link="https://maps.app.goo.gl/6xjwgY6zeZZ9Rr817",
         ticket_link="https://thuishaven.nl/#agenda",
     ),
-    "Клуб Tilla Tec": VenueInfo(
-        name="Клуб Tilla Tec",
+    "Tilla Tec": VenueInfo(
+        name="Tilla Tec",
         city="Амстердам",
         address="Jan van Bremenstraat 1",
         map_link="https://maps.app.goo.gl/j7HeC94gQPTxXua99",
         ticket_link="https://shop.eventix.io/0e536f93-e4fd-11ee-a9cb-7e126431635e/tickets?shop_code=7mv39gsy",
     ),
-    "Клуб Toffler": VenueInfo(
-        name="Клуб Toffler",
+    "Toffler": VenueInfo(
+        name="Toffler",
         city="Роттердам",
         address="Weena-Zuid 33",
         map_link="https://maps.app.goo.gl/itnMGHdAnUhvCY8L7",
         ticket_link="https://www.toffler.nl/",
     ),
-    "Клуб Warehouse Elementenstraat": VenueInfo(
-        name="Клуб Warehouse Elementenstraat",
+    "Warehouse Elementenstraat": VenueInfo(
+        name="Warehouse Elementenstraat",
         city="Амстердам",
         address="Elementenstraat 25",
         map_link="https://maps.app.goo.gl/61jmWzg7v5Z7ZNFU7",
         ticket_link="https://ra.co/clubs/69321/events",
     ),
-    "Клуб WAS.": VenueInfo(
-        name="Клуб WAS.",
+    "WAS.": VenueInfo(
+        name="WAS.",
         city="Утрехт",
         address="Tractieweg 41",
         map_link="https://maps.app.goo.gl/q7nJR3q7Rf7vqcXg8",
         ticket_link="https://www.was030.nl/tickets/",
+    ),
+    "WORM": VenueInfo(
+        name="Арт-центр WORM",
+        city="Роттердам",
+        address="Boomgaardsstraat 71",
+        map_link="https://maps.app.goo.gl/3S5DKJii2WiJoN2p6",
+        ticket_link="https://worm.stager.co/web/tickets",
     ),
 }
 
