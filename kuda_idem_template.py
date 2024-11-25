@@ -130,6 +130,18 @@ def format_date_range(start_date: dt.datetime, end_date: dt.datetime) -> str:
     )
 
 
+def get_friday_and_sunday(day: dt.datetime) -> tuple[dt.datetime, dt.datetime]:
+    """Given a particular daytime object, get Friday and Sunday for that particular week."""
+    # First get Monday of the week (subtract weekday number)
+    monday = day - dt.timedelta(days=day.weekday())
+    # Then add 4 days to get to Friday
+    friday = monday + dt.timedelta(days=4)
+
+    # Get Sunday (Friday + 2 days)
+    sunday = friday + dt.timedelta(days=2)
+    return friday, sunday
+
+
 def determine_date_range(events: Collection[Event]) -> tuple[dt.datetime, dt.datetime]:
     """Determine the start and end dates based on events and weekdays.
 
@@ -147,13 +159,7 @@ def determine_date_range(events: Collection[Event]) -> tuple[dt.datetime, dt.dat
     latest_end = max(event.end_datetime for event in events)
 
     # Get the Friday of the week containing the earliest event
-    # First get Monday of the week (subtract weekday number)
-    monday = earliest_start - dt.timedelta(days=earliest_start.weekday())
-    # Then add 4 days to get to Friday
-    friday = monday + dt.timedelta(days=4)
-
-    # Get Sunday (Friday + 2 days)
-    sunday = friday + dt.timedelta(days=2)
+    friday, sunday = get_friday_and_sunday(earliest_start)
 
     # Choose the earliest of Friday and earliest_start for start_date
     start_date = min(friday, earliest_start)

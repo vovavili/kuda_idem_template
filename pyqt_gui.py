@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import datetime as dt
 from dataclasses import dataclass
 
 import asyncio
@@ -30,7 +31,7 @@ from PyQt6.QtCore import QDateTime, QTime, QDate, Qt
 from PyQt6.QtWidgets import QTimeEdit, QMenu
 from PyQt6.QtGui import QIcon
 
-from kuda_idem_template import Event, send_html_message
+from kuda_idem_template import Event, send_html_message, get_friday_and_sunday
 
 
 @dataclass(slots=True)
@@ -256,15 +257,21 @@ class TimeSelectMenu(QMenu):
 
 
 class DateTimePickerWidget(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, is_start:bool=True):
         super().__init__(parent)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
+        # Get default dates
+        friday, sunday = get_friday_and_sunday(dt.datetime.now())
+
         # Create Date edit with calendar popup
         self.date_edit = QDateEdit(self)
         self.date_edit.setCalendarPopup(True)
-        self.date_edit.setDate(QDate.currentDate())
+
+        # Set default date based on whether this is start or end widget
+        default_date = friday if is_start else sunday
+        self.date_edit.setDate(QDate(default_date.year, default_date.month, default_date.day))
 
         # Customize calendar
         calendar = QCalendarWidget(self)
@@ -285,8 +292,10 @@ class DateTimePickerWidget(QWidget):
         # Create Time edit with custom popup
         self.time_edit = QTimeEdit(self)
         self.time_edit.setDisplayFormat("HH:00")
-        current = QTime.currentTime()
-        self.time_edit.setTime(QTime(current.hour(), 0))
+
+        # Set default time (23:00 for start, 08:00 for end)
+        default_hour = 23 if is_start else 8
+        self.time_edit.setTime(QTime(default_hour, 0))
 
         # Create custom button for time selection
         self.time_button = QPushButton("🕒")
@@ -371,8 +380,11 @@ class EventInputWindow(QMainWindow):
         self.title_link = QLineEdit()
         self.description = PlainTextEdit()  # Create PlainTextEdit here instead of QTextEdit
         self.description.setAcceptRichText(False)
-        self.start_datetime = DateTimePickerWidget()
-        self.end_datetime = DateTimePickerWidget()
+
+        # Create input fields with required indicators
+        self.start_datetime = DateTimePickerWidget(is_start=True)
+        self.end_datetime = DateTimePickerWidget(is_start=False)
+
         self.venue_name = QLineEdit()
         self.venue_address = QLineEdit()
         self.venue_map_link = QLineEdit()
