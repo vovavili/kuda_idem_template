@@ -377,6 +377,16 @@ class EventInputWindow(QMainWindow):
         self.ticket_link = QLineEdit()
         self.ticket_info = QLineEdit()
 
+        # Add placeholder texts for mandatory fields
+
+        self.city.setPlaceholderText("City where the club is located.")
+        self.title.setPlaceholderText("Name of the event.")
+        self.venue_name.setPlaceholderText("Name of the venue where the event is going to happen.")
+        self.venue_address.setPlaceholderText("Location of the event.")
+        self.venue_map_link.setPlaceholderText(
+            "Gmail link so it would be easier to reach the event."
+        )
+
         # Add placeholder texts for optional fields
 
         self.title_link.setPlaceholderText("Optional - URL to event details")
