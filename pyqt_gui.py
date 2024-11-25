@@ -554,6 +554,45 @@ class EventInputWindow(QMainWindow):
         # Add to form layout (using only one label)
         form_layout.addRow(RequiredLabel("Venue Selection", required=False), venue_layout)
 
+    def create_message_box(
+        self,
+        icon: QMessageBox.Icon,
+        title: str,
+        text: str,
+        buttons: QMessageBox.StandardButton = QMessageBox.StandardButton.Ok,
+        default_button: QMessageBox.StandardButton = QMessageBox.StandardButton.Ok,
+    ) -> QMessageBox:
+        """Create a properly styled message box"""
+        msg = QMessageBox()
+        msg.setIcon(icon)
+        msg.setWindowTitle(title)
+        msg.setText(text)
+        msg.setStandardButtons(buttons)
+        msg.setDefaultButton(default_button)
+
+        # Style the message box and its buttons
+        msg.setStyleSheet("""
+            QMessageBox {
+                background-color: #F5F5F5;
+            }
+            QPushButton {
+                background-color: #0078D7;
+                color: white;
+                border: none;
+                padding: 6px 20px;
+                border-radius: 3px;
+                min-width: 80px;
+            }
+            QPushButton:hover {
+                background-color: #005A9E;
+            }
+            QPushButton:pressed {
+                background-color: #004275;
+            }
+        """)
+
+        return msg
+
     def clear_venue_selection(self):
         """Clear venue selection and related fields"""
         self.venue_combo.setCurrentIndex(0)
@@ -638,11 +677,12 @@ class EventInputWindow(QMainWindow):
             self.events.append(event)
 
             # Show success message
-            QMessageBox.information(
-                self,
+            msg = self.create_message_box(
+                QMessageBox.Icon.Information,
                 "Success",
                 f"Event '{event.title}' added successfully!\nTotal events: {len(self.events)}",
             )
+            msg.exec()
 
             # Clear the form
             self.clear_form()
@@ -652,7 +692,10 @@ class EventInputWindow(QMainWindow):
 
     def show_events(self):
         if not self.events:
-            QMessageBox.information(self, "Events", "No events submitted yet.")
+            msg = self.create_message_box(
+                QMessageBox.Icon.Information, "Events", "No events submitted yet."
+            )
+            msg.exec()
             return
 
         # Create a custom dialog
@@ -732,13 +775,14 @@ class EventInputWindow(QMainWindow):
     def remove_event(self, index: int, dialog: QDialog = None):
         """Remove an event from the list"""
         if 0 <= index < len(self.events):
-            reply = QMessageBox.question(
-                self,
+            msg = self.create_message_box(
+                QMessageBox.Icon.Question,
                 "Confirm Removal",
                 f"Are you sure you want to remove event '{self.events[index].title}'?",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No,
             )
+            reply = msg.exec()
 
             if reply == QMessageBox.StandardButton.Yes:
                 self.events.pop(index)
@@ -768,7 +812,8 @@ class EventInputWindow(QMainWindow):
     def send_to_telegram(self):
         """Send events to Telegram and exit"""
         if not self.events:
-            QMessageBox.warning(self, "Warning", "No events to send!")
+            msg = self.create_message_box(QMessageBox.Icon.Warning, "Warning", "No events to send!")
+            msg.exec()
             return
 
         try:
@@ -782,9 +827,12 @@ class EventInputWindow(QMainWindow):
             asyncio.run(send_html_message(self.events))
 
             # Show success message with event count
-            QMessageBox.information(
-                self, "Success", f"Successfully sent {len(self.events)} event(s) to Telegram!"
+            msg = self.create_message_box(
+                QMessageBox.Icon.Information,
+                "Success",
+                f"Successfully sent {len(self.events)} event(s) to Telegram!",
             )
+            msg.exec()
 
             # Exit the application
             QApplication.quit()
@@ -799,13 +847,15 @@ class EventInputWindow(QMainWindow):
     def closeEvent(self, event):
         """Handle application closing"""
         if self.events:
-            reply = QMessageBox.question(
-                self,
+            msg = self.create_message_box(
+                QMessageBox.Icon.Question,
                 "Confirm Exit",
                 f"You have {len(self.events)} unsent event(s). Are you sure you want to quit?",
-                QMessageBox.StandardButton.Yes,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No,
             )
+            reply = msg.exec()
+
             if reply == QMessageBox.StandardButton.Yes:
                 event.accept()
             else:
