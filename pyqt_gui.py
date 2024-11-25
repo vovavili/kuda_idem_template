@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from dataclasses import dataclass
 
 import asyncio
 from PyQt6.QtWidgets import (
@@ -20,12 +21,173 @@ from PyQt6.QtWidgets import (
     QCalendarWidget,
     QHBoxLayout,
     QDateEdit,
+    QComboBox,
 )
 from PyQt6.QtCore import QDateTime, QTime, QDate
 from PyQt6.QtWidgets import QTimeEdit, QMenu
 
 
 from kuda_idem_template import Event, send_html_message
+
+
+@dataclass(slots=True)
+class VenueInfo:
+    name: str
+    city: str
+    address: str
+    map_link: str
+    ticket_link: str
+
+
+VENUES: dict[str, VenueInfo] = {
+    "Арт-центр WORM": VenueInfo(
+        name="Арт-центр WORM",
+        city="Роттердам",
+        address="Boomgaardsstraat 71",
+        map_link="https://maps.app.goo.gl/3S5DKJii2WiJoN2p6",
+        ticket_link="https://worm.stager.co/web/tickets",
+    ),
+    "Клуб BASIS": VenueInfo(
+        name="Клуб BASIS",
+        city="Утрехт",
+        address="Oudegracht aan de Werf 97",
+        map_link="https://maps.app.goo.gl/ziunBp7tArEiSWwa7",
+        ticket_link="https://clubbasis.nl/tickets/",
+    ),
+    "Клуб Bret": VenueInfo(
+        name="Клуб Bret",
+        city="Амстердам",
+        address="Orlyplein 76",
+        map_link="https://maps.app.goo.gl/32r9j3DEqsfmYyXE6",
+        ticket_link="https://www.bret.bar/ticketshop",
+    ),
+    "De Hemkade": VenueInfo(
+        name="De Hemkade",
+        city="Зандаам",
+        address="Hemkade 48",
+        map_link="https://maps.app.goo.gl/X6X6vHUurbpxZ8et5emkade",
+        ticket_link="https://hemkade48.nl/agenda/?e-filter-c5ded3a-event_month=november",
+    ),
+    "Клуб Der Hintergarten": VenueInfo(
+        name="Клуб Der Hintergarten",
+        city="Амстердам",
+        address="Overschiestraat 188",
+        map_link="https://maps.app.goo.gl/rkS97gU2YMNePri39",
+        ticket_link="https://www.derhintergarten.nl/events",
+    ),
+    "Клуб Garage Klub": VenueInfo(
+        name="Клуб Garage Klub",
+        city="Антверп",
+        address="Noorderlaan 72",
+        map_link="https://maps.app.goo.gl/t7utfBmoJwtNtBif7",
+        ticket_link="https://agenda.paylogic.com/4e407aa066b044e3a9039771a583e896",
+    ),
+    "Клуб Garage Noord": VenueInfo(
+        name="Клуб Garage Noord",
+        city="Амстердам",
+        address="Gedempt hamerkanaal 40",
+        map_link="https://maps.app.goo.gl/HCnFgNhzYbswLicb6",
+        ticket_link="https://www.garagenoord.com/club",
+    ),
+    "Клуб KABUL à GoGo": VenueInfo(
+        name="Клуб KABUL à GoGo",
+        city="Утрехт",
+        address="Gietijzerstraat 3",
+        map_link="https://maps.app.goo.gl/wzNTDZ5ZSasMEfM9A",
+        ticket_link="https://www.kabulagogo.nl/tickets",
+    ),
+    "Клуб Laak": VenueInfo(
+        name="Клуб Laak",
+        city="Гаага",
+        address="Theodor Stangstraat 1",
+        map_link="https://maps.app.goo.gl/fFN71thiVRMKKDgE6",
+        ticket_link="https://laak.stager.co/web/tickets",
+    ),
+    "Клуб Levenslang": VenueInfo(
+        name="Клуб Levenslang",
+        city="Амстердам",
+        address="H.J.E. Wenckebachweg 48",
+        map_link="https://maps.app.goo.gl/JsjmPJ6E4Fv5Lnrh7",
+        ticket_link="https://www.levenslang.amsterdam/en/program",
+    ),
+    "Клуб Lofi": VenueInfo(
+        name="Клуб Lofi",
+        city="Амстердам",
+        address="Basisweg 63",
+        map_link="https://maps.app.goo.gl/tmrvEycPcNe1fzQp9",
+        ticket_link="https://shop.eventix.io/54a986f2-a7ca-46e4-9b0b-9b49f0e4c92a/events",
+    ),
+    "Клуб Now & Wow": VenueInfo(
+        name="Клуб Now & Wow",
+        city="Роттердам",
+        address="Maashaven Zuidzijde 1-2",
+        map_link="https://maps.app.goo.gl/D6RQg1CJbVVTTGnK8",
+        ticket_link="https://www.maassilo.com/agenda/",
+    ),
+    "Клуб Pip": VenueInfo(
+        name="Клуб Pip",
+        city="Гаага",
+        address="Binckhorstlaan 36",
+        map_link="https://maps.app.goo.gl/RHnMwDPaaoxaaEda6",
+        ticket_link="https://pipdenhaag.stager.co/web/tickets",
+    ),
+    "Клуб RADION": VenueInfo(
+        name="Клуб RADION",
+        city="Амстердам",
+        address="Louwesweg 1",
+        map_link="https://maps.app.goo.gl/BCp1L74yxzfP2zMm7",
+        ticket_link="https://radionamsterdam.stager.co/web/tickets",
+    ),
+    "Клуб RAUM": VenueInfo(
+        name="Клуб RAUM",
+        city="Амстердам",
+        address="Humberweg 3",
+        map_link="https://maps.app.goo.gl/2W543xaXH1gpkrLW8",
+        ticket_link="https://www.clubraum.nl/calendar",
+    ),
+    "Клуб Shelter": VenueInfo(
+        name="Клуб Shelter",
+        city="Амстердам",
+        address="Overhoeksplein 3",
+        map_link="https://maps.app.goo.gl/dRFnNgxbkgg8khb99",
+        ticket_link="https://shop.eventix.io/bca0fb30-5c63-11e9-af17-65a0f4e2b9f9/events",
+    ),
+    "Клуб Thuishaven": VenueInfo(
+        name="Клуб Thuishaven",
+        city="Амстердам",
+        address="Contactweg 68",
+        map_link="https://maps.app.goo.gl/6xjwgY6zeZZ9Rr817",
+        ticket_link="https://thuishaven.nl/#agenda",
+    ),
+    "Клуб Tilla Tec": VenueInfo(
+        name="Клуб Tilla Tec",
+        city="Амстердам",
+        address="Jan van Bremenstraat 1",
+        map_link="https://maps.app.goo.gl/j7HeC94gQPTxXua99",
+        ticket_link="https://shop.eventix.io/0e536f93-e4fd-11ee-a9cb-7e126431635e/tickets?shop_code=7mv39gsy",
+    ),
+    "Клуб Toffler": VenueInfo(
+        name="Клуб Toffler",
+        city="Роттердам",
+        address="Weena-Zuid 33",
+        map_link="https://maps.app.goo.gl/itnMGHdAnUhvCY8L7",
+        ticket_link="https://www.toffler.nl/",
+    ),
+    "Клуб Warehouse Elementenstraat": VenueInfo(
+        name="Клуб Warehouse Elementenstraat",
+        city="Амстердам",
+        address="Elementenstraat 25",
+        map_link="https://maps.app.goo.gl/61jmWzg7v5Z7ZNFU7",
+        ticket_link="https://ra.co/clubs/69321/events",
+    ),
+    "Клуб WAS.": VenueInfo(
+        name="Клуб WAS.",
+        city="Утрехт",
+        address="Tractieweg 41",
+        map_link="https://maps.app.goo.gl/q7nJR3q7Rf7vqcXg8",
+        ticket_link="https://www.was030.nl/tickets/",
+    ),
+}
 
 
 class RequiredLabel(QLabel):
@@ -323,6 +485,84 @@ class EventInputWindow(QMainWindow):
         # Initialize events list
         self.events = []
 
+        # Create the venue combo box with proper styling
+        self.venue_combo = QComboBox()
+        self.venue_combo.setStyleSheet("""
+            QComboBox {
+                background-color: white;
+                border: 1px solid #C0C0C0;
+                border-radius: 3px;
+                padding: 5px;
+                color: #333333;  /* Dark text color */
+            }
+            QComboBox:hover {
+                border: 1px solid #0078D7;
+            }
+            QComboBox::drop-down {
+                border: none;
+            }
+            QComboBox QAbstractItemView {
+                background-color: white;
+                border: 1px solid #C0C0C0;
+                selection-background-color: #0078D7;
+                selection-color: white;
+                color: #333333;  /* Dark text color for dropdown items */
+            }
+        """)
+
+        self.venue_combo.addItem("-- Select Venue --")
+        # Add venues in alphabetical order
+        for venue_name in sorted(VENUES.keys()):
+            self.venue_combo.addItem(venue_name)
+
+        self.venue_combo.currentTextChanged.connect(self.on_venue_selected)
+
+        # Create horizontal layout for venue selection
+        venue_layout = QHBoxLayout()
+        venue_layout.addWidget(self.venue_combo)
+
+        # Add clear button
+        clear_venue_button = QPushButton("Clear")
+        clear_venue_button.setStyleSheet("""
+            QPushButton {
+                background-color: #DC3545;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 3px;
+            }
+            QPushButton:hover {
+                background-color: #C82333;
+            }
+        """)
+        clear_venue_button.clicked.connect(self.clear_venue_selection)
+        venue_layout.addWidget(clear_venue_button)
+
+        # Add to form layout (using only one label)
+        form_layout.addRow(RequiredLabel("Venue Selection", required=False), venue_layout)
+
+    def clear_venue_selection(self):
+        """Clear venue selection and related fields"""
+        self.venue_combo.setCurrentIndex(0)
+        self.venue_name.clear()
+        self.city.clear()
+        self.venue_address.clear()
+        self.venue_map_link.clear()
+        self.ticket_link.clear()
+
+    def on_venue_selected(self, venue_name: str):
+        """Handle venue selection"""
+        if venue_name == "-- Select Venue --":
+            return
+
+        venue_info = VENUES.get(venue_name)
+        if venue_info:
+            self.venue_name.setText(venue_info.name)
+            self.city.setText(venue_info.city)
+            self.venue_address.setText(venue_info.address)
+            self.venue_map_link.setText(venue_info.map_link)
+            self.ticket_link.setText(venue_info.ticket_link)
+
     def validate_form(self) -> tuple[bool, str]:
         """Validate form fields"""
         required_fields = {
@@ -412,6 +652,8 @@ class EventInputWindow(QMainWindow):
         current_datetime = QDateTime.currentDateTime()
         self.start_datetime.setDateTime(current_datetime)
         self.end_datetime.setDateTime(current_datetime)
+
+        self.venue_combo.setCurrentIndex(0)  # Reset to "Select Venue"
 
     def send_to_telegram(self):
         """Send events to Telegram"""
@@ -532,6 +774,31 @@ def main():
             QTextEdit#description {
                 background-color: white;
                 color: #333333;
+            }
+            
+            QComboBox {
+                background-color: white;
+                border: 1px solid #C0C0C0;
+                border-radius: 3px;
+                padding: 5px;
+            }
+            QComboBox:hover {
+                border: 1px solid #0078D7;
+            }
+            QComboBox::drop-down {
+                border: none;
+            }
+            QComboBox::down-arrow {
+                image: url(down_arrow.png);  # You'd need to provide this image
+                width: 12px;
+                height: 12px;
+            }
+            QComboBox QAbstractItemView {
+                background-color: white;
+                border: 1px solid #C0C0C0;
+                selection-background-color: #0078D7;
+                selection-color: white;
+                outline: none;
             }
         """)
 
