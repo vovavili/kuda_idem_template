@@ -257,7 +257,7 @@ class TimeSelectMenu(QMenu):
 
 
 class DateTimePickerWidget(QWidget):
-    def __init__(self, parent=None, is_start:bool=True):
+    def __init__(self, parent=None, is_start: bool = True):
         super().__init__(parent)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -569,11 +569,11 @@ class EventInputWindow(QMainWindow):
         form_layout.addRow(RequiredLabel("Venue Selection", required=False), venue_layout)
 
     def center_window(self):
-        # Get the primary screen's geometry
-        screen = QApplication.primaryScreen().geometry()
+        # Get the available geometry (excludes taskbar and other system elements)
+        screen = QApplication.primaryScreen().availableGeometry()
         # Get the window's geometry
         window_geometry = self.frameGeometry()
-        # Calculate the center point of the screen
+        # Calculate the center point of the available screen space
         center_point = screen.center()
         # Move the window's center point to the screen's center point
         window_geometry.moveCenter(center_point)
