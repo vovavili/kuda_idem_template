@@ -22,8 +22,11 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QDateEdit,
     QComboBox,
+    QDialog,
+    QGroupBox,
+    QScrollArea,
 )
-from PyQt6.QtCore import QDateTime, QTime, QDate
+from PyQt6.QtCore import QDateTime, QTime, QDate, Qt
 from PyQt6.QtWidgets import QTimeEdit, QMenu
 
 
@@ -597,10 +600,17 @@ class EventInputWindow(QMainWindow):
 
         return True, ""
 
-    def submit_event(self) -> Event:
-        """Create an Event object from form data"""
+    def submit_event(self):
+        """Handle event submission"""
+        # First validate the form
+        is_valid, message = self.validate_form()
+        if not is_valid:
+            QMessageBox.warning(self, "Validation Error", message)
+            return
+
         try:
-            return Event(
+            # Create the event
+            event = Event(
                 city=self.city.text().strip(),
                 title=self.title.text().strip(),
                 title_link=self.title_link.text().strip() or None,
@@ -613,29 +623,119 @@ class EventInputWindow(QMainWindow):
                 ticket_link=self.ticket_link.text().strip() or None,
                 ticket_info=self.ticket_info.text().strip() or None,
             )
+
+            # Add event to the list
+            self.events.append(event)
+
+            # Show success message
+            QMessageBox.information(
+                self,
+                "Success",
+                f"Event '{event.title}' added successfully!\nTotal events: {len(self.events)}",
+            )
+
+            # Clear the form
+            self.clear_form()
+
         except Exception as e:
-            raise ValueError(f"Error creating event: {str(e)}")
+            QMessageBox.critical(self, "Error", f"Failed to add event: {str(e)}")
 
     def show_events(self):
         if not self.events:
             QMessageBox.information(self, "Events", "No events submitted yet.")
             return
 
-        events_text = "Submitted Events:\n\n"
-        for i, event in enumerate(self.events, 1):
-            events_text += f"Event {i}:\n"
-            events_text += f"Title: {event.title}\n"
-            events_text += f"City: {event.city}\n"
-            events_text += f"Venue: {event.venue_name}\n"
-            events_text += f"Start: {event.start_datetime}\n"
-            events_text += f"End: {event.end_datetime}\n"
-            events_text += "-" * 40 + "\n"
+        # Create a custom dialog
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Submitted Events")
+        dialog.setMinimumWidth(500)
 
-        msg = QMessageBox()
-        msg.setWindowTitle("Submitted Events")
-        msg.setText(events_text)
-        msg.setStandardButtons(QMessageBox.StandardButton.Ok)
-        msg.exec()
+        layout = QVBoxLayout(dialog)
+
+        # Create a widget to hold all events
+        events_widget = QWidget()
+        events_layout = QVBoxLayout(events_widget)
+
+        # Add each event with a remove button
+        for i, event in enumerate(self.events):
+            event_box = QGroupBox(f"Event {i + 1}")
+            event_layout = QVBoxLayout()
+
+            event_text = (
+                f"Title: {event.title}\n"
+                f"City: {event.city}\n"
+                f"Venue: {event.venue_name}\n"
+                f"Start: {event.start_datetime}\n"
+                f"End: {event.end_datetime}"
+            )
+
+            event_label = QLabel(event_text)
+            event_layout.addWidget(event_label)
+
+            # Add remove button
+            remove_btn = QPushButton("Remove Event")
+            remove_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #DC3545;
+                    color: white;
+                    border: none;
+                    padding: 5px 10px;
+                    border-radius: 3px;
+                    max-width: 150px;
+                }
+                QPushButton:hover {
+                    background-color: #C82333;
+                }
+            """)
+            remove_btn.clicked.connect(lambda checked, idx=i: self.remove_event(idx, dialog))
+            event_layout.addWidget(remove_btn)
+
+            event_box.setLayout(event_layout)
+            events_layout.addWidget(event_box)
+
+        # Add scroll area for many events
+        scroll = QScrollArea()
+        scroll.setWidget(events_widget)
+        scroll.setWidgetResizable(True)
+        layout.addWidget(scroll)
+
+        # Add close button at the bottom
+        close_btn = QPushButton("Close")
+        close_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #6C757D;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                min-width: 100px;
+            }
+            QPushButton:hover {
+                background-color: #5A6268;
+            }
+        """)
+        close_btn.clicked.connect(dialog.accept)
+        layout.addWidget(close_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        dialog.exec()
+
+    def remove_event(self, index: int, dialog: QDialog = None):
+        """Remove an event from the list"""
+        if 0 <= index < len(self.events):
+            reply = QMessageBox.question(
+                self,
+                "Confirm Removal",
+                f"Are you sure you want to remove event '{self.events[index].title}'?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+
+            if reply == QMessageBox.StandardButton.Yes:
+                self.events.pop(index)
+                if dialog:
+                    # Refresh the events dialog
+                    dialog.close()
+                    self.show_events()
 
     def clear_form(self):
         """Clear all form fields"""
@@ -656,7 +756,7 @@ class EventInputWindow(QMainWindow):
         self.venue_combo.setCurrentIndex(0)  # Reset to "Select Venue"
 
     def send_to_telegram(self):
-        """Send events to Telegram"""
+        """Send events to Telegram and exit"""
         if not self.events:
             QMessageBox.warning(self, "Warning", "No events to send!")
             return
@@ -676,13 +776,12 @@ class EventInputWindow(QMainWindow):
                 self, "Success", f"Successfully sent {len(self.events)} event(s) to Telegram!"
             )
 
-            # Clear events after successful sending
-            self.events.clear()
+            # Exit the application
+            QApplication.quit()
 
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to send to Telegram:\n{str(e)}")
-        finally:
-            # Re-enable buttons
+            # Re-enable buttons if there's an error
             self.submit_button.setEnabled(True)
             self.send_telegram_button.setEnabled(True)
             self.send_telegram_button.setText("Send to Telegram")
