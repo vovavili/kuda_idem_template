@@ -530,6 +530,7 @@ class EventInputWindow(QMainWindow):
 
         # Initialize events list
         self.events = []
+        self.events_saved = True
 
         # Check for saved events
         self.check_saved_events()
@@ -606,6 +607,7 @@ class EventInputWindow(QMainWindow):
         """Save events to disk cache"""
         events_data = [event.model_dump(mode="python") for event in self.events]
         cache.set('events', events_data)
+        self.events_saved = True
         self.events.clear()  # Clear events after saving
 
     def load_saved_events(self):
@@ -613,6 +615,7 @@ class EventInputWindow(QMainWindow):
         events_data = cache.get('events', [])
         for event_data in events_data:
             self.events.append(Event(**event_data))
+        self.events_saved = True
 
     def clear_cached_events(self):
         """Clear events from disk cache"""
@@ -779,6 +782,7 @@ class EventInputWindow(QMainWindow):
 
             # Add event to the list
             self.events.append(event)
+            self.events_saved = False
 
             # Show success message
             msg = self.create_message_box(
@@ -931,6 +935,7 @@ class EventInputWindow(QMainWindow):
         """Move an event up in the list"""
         if index > 0:
             self.events[index], self.events[index - 1] = self.events[index - 1], self.events[index]
+            self.events_saved = False
             if dialog:
                 # Refresh the events dialog
                 dialog.close()
@@ -940,6 +945,7 @@ class EventInputWindow(QMainWindow):
         """Move an event down in the list"""
         if index < len(self.events) - 1:
             self.events[index], self.events[index + 1] = self.events[index + 1], self.events[index]
+            self.events_saved = False
             if dialog:
                 # Refresh the events dialog
                 dialog.close()
@@ -959,6 +965,7 @@ class EventInputWindow(QMainWindow):
 
             if reply == QMessageBox.StandardButton.Yes:
                 self.events.pop(index)
+                self.events_saved = False
                 if dialog:
                     # Refresh the events dialog
                     dialog.close()
@@ -1052,7 +1059,7 @@ class EventInputWindow(QMainWindow):
 
     def closeEvent(self, event):
         """Handle application closing"""
-        if self.events:
+        if self.events and not self.events_saved:  # Only prompt if there are unsaved changes
             msg = self.create_message_box(
                 QMessageBox.Icon.Question,
                 "Confirm Exit",
