@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sys
 import datetime as dt
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 
 import asyncio
 from diskcache import Cache
@@ -606,7 +606,7 @@ class EventInputWindow(QMainWindow):
 
     def save_events_to_cache(self):
         """Save events to disk cache"""
-        events_data = [asdict(event) for event in self.events]
+        events_data = [event.model_dump(mode="python") for event in self.events]
         cache.set('events', events_data)
         self.events.clear()  # Clear events after saving
 
