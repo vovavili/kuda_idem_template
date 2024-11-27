@@ -590,8 +590,6 @@ class EventInputWindow(QMainWindow):
         # Add to form layout (using only one label)
         form_layout.addRow(RequiredLabel("Venue Selection", required=False), venue_layout)
 
-        self.load_saved_events()
-
     def center_window(self):
         # Get the available geometry (excludes taskbar and other system elements)
         screen = QApplication.primaryScreen().availableGeometry()
