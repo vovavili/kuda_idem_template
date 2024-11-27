@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import sys
 import datetime as dt
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 import asyncio
+from diskcache import Cache
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -192,6 +193,7 @@ VENUES: dict[str, VenueInfo] = {
         ticket_link="https://worm.stager.co/web/tickets",
     ),
 }
+cache = Cache("event_cache")
 
 
 class RequiredLabel(QLabel):
@@ -486,6 +488,23 @@ class EventInputWindow(QMainWindow):
         self.view_events_button.clicked.connect(self.show_events)
         button_layout.addWidget(self.view_events_button)
 
+        # Add save events button
+        self.save_events_button = QPushButton("Save Events")
+        self.save_events_button.setStyleSheet("""
+            QPushButton {
+                background-color: #FFA500;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #FF8C00;
+            }
+        """)
+        self.save_events_button.clicked.connect(self.save_events)
+        button_layout.addWidget(self.save_events_button)
+
         # Add send telegram button
         self.send_telegram_button = QPushButton("Send to Telegram")
         self.send_telegram_button.setStyleSheet("""
@@ -511,6 +530,9 @@ class EventInputWindow(QMainWindow):
 
         # Initialize events list
         self.events = []
+
+        # Check for saved events
+        self.check_saved_events()
 
         # Create the venue combo box with proper styling
         self.venue_combo = QComboBox()
@@ -568,6 +590,8 @@ class EventInputWindow(QMainWindow):
         # Add to form layout (using only one label)
         form_layout.addRow(RequiredLabel("Venue Selection", required=False), venue_layout)
 
+        self.load_saved_events()
+
     def center_window(self):
         # Get the available geometry (excludes taskbar and other system elements)
         screen = QApplication.primaryScreen().availableGeometry()
@@ -579,6 +603,52 @@ class EventInputWindow(QMainWindow):
         window_geometry.moveCenter(center_point)
         # Move the window to the calculated position
         self.move(window_geometry.topLeft())
+
+    def save_events_to_cache(self):
+        """Save events to disk cache"""
+        events_data = [asdict(event) for event in self.events]
+        cache.set('events', events_data)
+        self.events.clear()  # Clear events after saving
+
+    def load_saved_events(self):
+        """Load events from disk cache"""
+        events_data = cache.get('events', [])
+        for event_data in events_data:
+            # Convert datetime strings back to datetime objects
+            event_data['start_datetime'] = dt.datetime.fromisoformat(event_data['start_datetime'])
+            event_data['end_datetime'] = dt.datetime.fromisoformat(event_data['end_datetime'])
+            self.events.append(Event(**event_data))
+
+    def clear_cached_events(self):
+        """Clear events from disk cache"""
+        cache.delete('events')
+
+    def save_events(self):
+        """Handle saving events"""
+        if not self.events:
+            msg = self.create_message_box(
+                QMessageBox.Icon.Warning,
+                "Warning",
+                "No events to save!"
+            )
+            msg.exec()
+            return
+
+        try:
+            self.save_events_to_cache()
+            msg = self.create_message_box(
+                QMessageBox.Icon.Information,
+                "Success",
+                f"Successfully saved {len(self.events)} events!"
+            )
+            msg.exec()
+        except Exception as e:
+            msg = self.create_message_box(
+                QMessageBox.Icon.Critical,
+                "Error",
+                f"Failed to save events: {str(e)}"
+            )
+            msg.exec()
 
     def create_message_box(
             self,
@@ -940,13 +1010,14 @@ class EventInputWindow(QMainWindow):
             self.submit_button.setEnabled(False)
             self.send_telegram_button.setEnabled(False)
             self.send_telegram_button.setText("Sending...")
-            QApplication.processEvents()  # Update UI
+            QApplication.processEvents()
 
             # Send the message
             asyncio.run(send_html_message(self.events))
 
-            # Clear the events list after successful sending
+            # Clear both the events list and cached events
             self.events.clear()
+            self.clear_cached_events()
 
             # Show success message
             msg = self.create_message_box(
@@ -964,10 +1035,25 @@ class EventInputWindow(QMainWindow):
                 QMessageBox.Icon.Critical, "Error", f"Failed to send to Telegram:\n{str(e)}"
             )
             msg.exec()
-            # Re-enable buttons if there's an error
             self.submit_button.setEnabled(True)
             self.send_telegram_button.setEnabled(True)
             self.send_telegram_button.setText("Send to Telegram")
+
+    def check_saved_events(self):
+        """Check for saved events on startup"""
+        saved_events = cache.get('events', [])
+        if saved_events:
+            msg = self.create_message_box(
+                QMessageBox.Icon.Question,
+                "Saved Events Found",
+                f"Found {len(saved_events)} saved events. Would you like to load them?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes,
+            )
+            reply = msg.exec()
+
+            if reply == QMessageBox.StandardButton.Yes:
+                self.load_saved_events()
 
     def closeEvent(self, event):
         """Handle application closing"""
@@ -975,15 +1061,27 @@ class EventInputWindow(QMainWindow):
             msg = self.create_message_box(
                 QMessageBox.Icon.Question,
                 "Confirm Exit",
-                f"You have {len(self.events)} unsent event(s). Are you sure you want to quit?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.No,
+                f"You have {len(self.events)} unsaved event(s). Would you like to save before quitting?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel,
+                QMessageBox.StandardButton.Yes,
             )
             reply = msg.exec()
 
             if reply == QMessageBox.StandardButton.Yes:
+                try:
+                    self.save_events_to_cache()
+                    event.accept()
+                except Exception as e:
+                    error_msg = self.create_message_box(
+                        QMessageBox.Icon.Critical,
+                        "Error",
+                        f"Failed to save events: {str(e)}"
+                    )
+                    error_msg.exec()
+                    event.ignore()
+            elif reply == QMessageBox.StandardButton.No:
                 event.accept()
-            else:
+            else:  # Cancel
                 event.ignore()
         else:
             event.accept()

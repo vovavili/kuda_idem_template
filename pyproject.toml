@@ -15,6 +15,7 @@ dependencies = [
     "python-telegram-bot>=21.7",
     "PyQt6>=6.7.1",
     "Jinja2>=3.1.4",
+    "diskcache>=5.6.3",
 ]
 [project.optional-dependencies]
 lint = [
