@@ -71,7 +71,7 @@ class Event(BaseModel):
     venue_address: str
     venue_map_link: Url
     ticket_link: Url | None = None
-    ticket_info: str | None = None
+    ticket_info: str | None = "Билет не нужен."
 
 
 def get_russian_weekday(date: dt.datetime) -> str:

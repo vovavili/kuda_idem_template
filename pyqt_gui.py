@@ -581,12 +581,12 @@ class EventInputWindow(QMainWindow):
         self.move(window_geometry.topLeft())
 
     def create_message_box(
-            self,
-            icon: QMessageBox.Icon,
-            title: str,
-            text: str,
-            buttons: QMessageBox.StandardButton = QMessageBox.StandardButton.Ok,
-            default_button: QMessageBox.StandardButton = QMessageBox.StandardButton.Ok,
+        self,
+        icon: QMessageBox.Icon,
+        title: str,
+        text: str,
+        buttons: QMessageBox.StandardButton = QMessageBox.StandardButton.Ok,
+        default_button: QMessageBox.StandardButton = QMessageBox.StandardButton.Ok,
     ) -> QMessageBox:
         """Create a properly styled message box"""
         msg = QMessageBox()
