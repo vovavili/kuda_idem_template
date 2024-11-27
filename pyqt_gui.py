@@ -614,9 +614,6 @@ class EventInputWindow(QMainWindow):
         """Load events from disk cache"""
         events_data = cache.get('events', [])
         for event_data in events_data:
-            # Convert datetime strings back to datetime objects
-            event_data['start_datetime'] = dt.datetime.fromisoformat(event_data['start_datetime'])
-            event_data['end_datetime'] = dt.datetime.fromisoformat(event_data['end_datetime'])
             self.events.append(Event(**event_data))
 
     def clear_cached_events(self):
