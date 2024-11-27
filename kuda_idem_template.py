@@ -71,7 +71,7 @@ class Event(BaseModel):
     venue_address: str
     venue_map_link: Url
     ticket_link: Url | None = None
-    ticket_info: str | None = "Билет не нужен."
+    ticket_info: str | None = None
 
 
 def get_russian_weekday(date: dt.datetime) -> str:
@@ -247,6 +247,7 @@ def main(action: Action) -> None:
             venue_address="Humberweg 3",
             venue_map_link="https://maps.app.goo.gl/RfpFD8iWguaMHSEe8",
             ticket_link="https://shop.paylogic.com/ea94b94aa341470e96e4be2916ee397f/",
+            ticket_info="Билетов мало."
         ),
         Event(
             city="Амстердам",
