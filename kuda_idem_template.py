@@ -43,6 +43,9 @@ class Settings(BaseSettings):
     )
 
 
+settings = Settings()
+
+
 class Event(BaseModel):
     """Represents an event with its details and location information.
 
@@ -181,7 +184,7 @@ def determine_date_range(events: Collection[Event]) -> tuple[dt.datetime, dt.dat
 
 
 def generate_event_page(
-    events: Collection[Event],
+        events: Collection[Event],
 ) -> str:
     """Generate HTML page from events using a Jinja2 template.
 
@@ -214,7 +217,6 @@ async def send_html_message(events: Collection[Event]) -> None:
 
     """
     html_message = generate_event_page(events).replace('<meta charset="UTF-8">', "")
-    settings = Settings()
 
     # Create bot instance
     bot = Bot(token=settings.BOT_TOKEN.get_secret_value())

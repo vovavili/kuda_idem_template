@@ -1,6 +1,6 @@
 <meta charset="UTF-8">
 <b>Лучшие вечеринки, {{ date_range }}:</b>{% for event in events %}
-──────────────────────────────────────
+─────────────
 <b>{{ event.city }}:</b>
 <b>{% if event.title_link %}<a href="{{ event.title_link }}">{{ event.title }}</a>{% else %}{{ event.title }}{% endif %}</b>
 {% if event.description %}

@@ -1098,6 +1098,7 @@ class EventInputWindow(QMainWindow):
                     event.ignore()
             elif reply == QMessageBox.StandardButton.No:
                 event.accept()
+                self.clear_cached_events()
             else:  # Cancel
                 event.ignore()
         else:
