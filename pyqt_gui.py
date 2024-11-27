@@ -739,6 +739,20 @@ class EventInputWindow(QMainWindow):
             msg.exec()
             return False, "End time must be after start time!"
 
+        # Check if dates are more than 10 days apart
+        date_difference = (end - start).days
+        if date_difference > 10:
+            msg = self.create_message_box(
+                QMessageBox.Icon.Question,
+                "Date Range Warning",
+                f"The event spans {date_difference} days. Are you sure this is correct?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+            reply = msg.exec()
+            if reply == QMessageBox.StandardButton.No:
+                return False, "Date range too long"
+
         # Validate URLs if provided
         urls_to_validate = {
             "Title Link": self.title_link.text(),
