@@ -581,12 +581,12 @@ class EventInputWindow(QMainWindow):
         self.move(window_geometry.topLeft())
 
     def create_message_box(
-        self,
-        icon: QMessageBox.Icon,
-        title: str,
-        text: str,
-        buttons: QMessageBox.StandardButton = QMessageBox.StandardButton.Ok,
-        default_button: QMessageBox.StandardButton = QMessageBox.StandardButton.Ok,
+            self,
+            icon: QMessageBox.Icon,
+            title: str,
+            text: str,
+            buttons: QMessageBox.StandardButton = QMessageBox.StandardButton.Ok,
+            default_button: QMessageBox.StandardButton = QMessageBox.StandardButton.Ok,
     ) -> QMessageBox:
         """Create a properly styled message box"""
         msg = QMessageBox()
@@ -911,9 +911,20 @@ class EventInputWindow(QMainWindow):
         self.ticket_link.clear()
         self.ticket_info.clear()
 
-        current_datetime = QDateTime.currentDateTime()
-        self.start_datetime.setDateTime(current_datetime)
-        self.end_datetime.setDateTime(current_datetime)
+        # Get the next Friday and Sunday
+        friday, sunday = get_friday_and_sunday(dt.datetime.now())
+
+        # Set start datetime to Friday 23:00
+        friday_date = QDate(friday.year, friday.month, friday.day)
+        friday_time = QTime(23, 0)
+        self.start_datetime.date_edit.setDate(friday_date)
+        self.start_datetime.time_edit.setTime(friday_time)
+
+        # Set end datetime to Sunday 08:00
+        sunday_date = QDate(sunday.year, sunday.month, sunday.day)
+        sunday_time = QTime(8, 0)
+        self.end_datetime.date_edit.setDate(sunday_date)
+        self.end_datetime.time_edit.setTime(sunday_time)
 
         self.venue_combo.setCurrentIndex(0)  # Reset to "Select Venue"
 
