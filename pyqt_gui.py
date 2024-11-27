@@ -2,37 +2,38 @@
 
 from __future__ import annotations
 
-import sys
+import asyncio
 import datetime as dt
+import sys
 from dataclasses import dataclass
 
-import asyncio
 from diskcache import Cache
+from PyQt6.QtCore import QDate, QDateTime, Qt, QTime
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QApplication,
-    QMainWindow,
-    QGridLayout,
-    QWidget,
-    QVBoxLayout,
-    QFormLayout,
-    QPushButton,
-    QLineEdit,
-    QTextEdit,
-    QMessageBox,
-    QLabel,
     QCalendarWidget,
-    QHBoxLayout,
-    QDateEdit,
     QComboBox,
+    QDateEdit,
     QDialog,
+    QFormLayout,
+    QGridLayout,
     QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QMainWindow,
+    QMenu,
+    QMessageBox,
+    QPushButton,
     QScrollArea,
+    QTextEdit,
+    QTimeEdit,
+    QVBoxLayout,
+    QWidget,
 )
-from PyQt6.QtCore import QDateTime, QTime, QDate, Qt
-from PyQt6.QtWidgets import QTimeEdit, QMenu
-from PyQt6.QtGui import QIcon
 
-from kuda_idem_template import Event, send_html_message, get_friday_and_sunday
+from kuda_idem_template import Event, get_friday_and_sunday, send_html_message
 
 
 @dataclass(slots=True)
@@ -197,7 +198,7 @@ cache = Cache("event_cache")
 
 
 class RequiredLabel(QLabel):
-    """Custom label for form fields that indicates if a field is required"""
+    """Custom label for form fields that indicates if a field is required."""
 
     def __init__(self, text: str, required: bool = False):
         super().__init__()
@@ -337,10 +338,10 @@ class DateTimePickerWidget(QWidget):
 
 
 class PlainTextEdit(QTextEdit):
-    """Custom QTextEdit that forces plain text paste without formatting"""
+    """Custom QTextEdit that forces plain text paste without formatting."""
 
     def insertFromMimeData(self, source):
-        """Override paste behavior to insert plain text only"""
+        """Override paste behavior to insert plain text only."""
         if source.hasText():
             self.insertPlainText(source.text())
 
@@ -604,25 +605,25 @@ class EventInputWindow(QMainWindow):
         self.move(window_geometry.topLeft())
 
     def save_events_to_cache(self):
-        """Save events to disk cache"""
+        """Save events to disk cache."""
         events_data = [event.model_dump(mode="python") for event in self.events]
         cache.set('events', events_data)
         self.events_saved = True
         self.events.clear()  # Clear events after saving
 
     def load_saved_events(self):
-        """Load events from disk cache"""
+        """Load events from disk cache."""
         events_data = cache.get('events', [])
         for event_data in events_data:
             self.events.append(Event(**event_data))
         self.events_saved = True
 
     def clear_cached_events(self):
-        """Clear events from disk cache"""
+        """Clear events from disk cache."""
         cache.delete('events')
 
     def save_events(self):
-        """Handle saving events"""
+        """Handle saving events."""
         if not self.events:
             msg = self.create_message_box(
                 QMessageBox.Icon.Warning,
@@ -644,7 +645,7 @@ class EventInputWindow(QMainWindow):
             msg = self.create_message_box(
                 QMessageBox.Icon.Critical,
                 "Error",
-                f"Failed to save events: {str(e)}"
+                f"Failed to save events: {e!s}"
             )
             msg.exec()
 
@@ -656,7 +657,7 @@ class EventInputWindow(QMainWindow):
             buttons: QMessageBox.StandardButton = QMessageBox.StandardButton.Ok,
             default_button: QMessageBox.StandardButton = QMessageBox.StandardButton.Ok,
     ) -> QMessageBox:
-        """Create a properly styled message box"""
+        """Create a properly styled message box."""
         msg = QMessageBox()
         msg.setIcon(icon)
         msg.setWindowTitle(title)
@@ -688,7 +689,7 @@ class EventInputWindow(QMainWindow):
         return msg
 
     def clear_venue_selection(self):
-        """Clear venue selection and related fields"""
+        """Clear venue selection and related fields."""
         self.venue_combo.setCurrentIndex(0)
         self.venue_name.clear()
         self.city.clear()
@@ -697,7 +698,7 @@ class EventInputWindow(QMainWindow):
         self.ticket_link.clear()
 
     def on_venue_selected(self, venue_name: str):
-        """Handle venue selection"""
+        """Handle venue selection."""
         if venue_name == "-- Select Venue --":
             return
 
@@ -710,7 +711,7 @@ class EventInputWindow(QMainWindow):
             self.ticket_link.setText(venue_info.ticket_link)
 
     def validate_form(self) -> tuple[bool, str]:
-        """Validate form fields"""
+        """Validate form fields."""
         required_fields = {
             "City": self.city.text(),
             "Title": self.title.text(),
@@ -758,7 +759,7 @@ class EventInputWindow(QMainWindow):
         return True, ""
 
     def submit_event(self):
-        """Handle event submission"""
+        """Handle event submission."""
         # First validate the form
         is_valid, message = self.validate_form()
         if not is_valid:
@@ -797,7 +798,7 @@ class EventInputWindow(QMainWindow):
 
         except Exception as e:
             msg = self.create_message_box(
-                QMessageBox.Icon.Critical, "Error", f"Failed to add event: {str(e)}"
+                QMessageBox.Icon.Critical, "Error", f"Failed to add event: {e!s}"
             )
             msg.exec()
 
@@ -932,7 +933,7 @@ class EventInputWindow(QMainWindow):
         dialog.exec()
 
     def move_event_up(self, index: int, dialog: QDialog = None):
-        """Move an event up in the list"""
+        """Move an event up in the list."""
         if index > 0:
             self.events[index], self.events[index - 1] = self.events[index - 1], self.events[index]
             self.events_saved = False
@@ -942,7 +943,7 @@ class EventInputWindow(QMainWindow):
                 self.show_events()
 
     def move_event_down(self, index: int, dialog: QDialog = None):
-        """Move an event down in the list"""
+        """Move an event down in the list."""
         if index < len(self.events) - 1:
             self.events[index], self.events[index + 1] = self.events[index + 1], self.events[index]
             self.events_saved = False
@@ -952,7 +953,7 @@ class EventInputWindow(QMainWindow):
                 self.show_events()
 
     def remove_event(self, index: int, dialog: QDialog = None):
-        """Remove an event from the list"""
+        """Remove an event from the list."""
         if 0 <= index < len(self.events):
             msg = self.create_message_box(
                 QMessageBox.Icon.Question,
@@ -972,7 +973,7 @@ class EventInputWindow(QMainWindow):
                     self.show_events()
 
     def clear_form(self):
-        """Clear all form fields"""
+        """Clear all form fields."""
         self.city.clear()
         self.title.clear()
         self.title_link.clear()
@@ -1001,7 +1002,7 @@ class EventInputWindow(QMainWindow):
         self.venue_combo.setCurrentIndex(0)  # Reset to "Select Venue"
 
     def send_to_telegram(self):
-        """Send events to Telegram and exit"""
+        """Send events to Telegram and exit."""
         if not self.events:
             msg = self.create_message_box(QMessageBox.Icon.Warning, "Warning", "No events to send!")
             msg.exec()
@@ -1034,7 +1035,7 @@ class EventInputWindow(QMainWindow):
 
         except Exception as e:
             msg = self.create_message_box(
-                QMessageBox.Icon.Critical, "Error", f"Failed to send to Telegram:\n{str(e)}"
+                QMessageBox.Icon.Critical, "Error", f"Failed to send to Telegram:\n{e!s}"
             )
             msg.exec()
             self.submit_button.setEnabled(True)
@@ -1042,7 +1043,7 @@ class EventInputWindow(QMainWindow):
             self.send_telegram_button.setText("Send to Telegram")
 
     def check_saved_events(self):
-        """Check for saved events on startup"""
+        """Check for saved events on startup."""
         saved_events = cache.get('events', [])
         if saved_events:
             msg = self.create_message_box(
@@ -1058,7 +1059,7 @@ class EventInputWindow(QMainWindow):
                 self.load_saved_events()
 
     def closeEvent(self, event):
-        """Handle application closing"""
+        """Handle application closing."""
         if self.events and not self.events_saved:  # Only prompt if there are unsaved changes
             msg = self.create_message_box(
                 QMessageBox.Icon.Question,
@@ -1077,7 +1078,7 @@ class EventInputWindow(QMainWindow):
                     error_msg = self.create_message_box(
                         QMessageBox.Icon.Critical,
                         "Error",
-                        f"Failed to save events: {str(e)}"
+                        f"Failed to save events: {e!s}"
                     )
                     error_msg.exec()
                     event.ignore()
@@ -1193,7 +1194,7 @@ def main():
         sys.exit(app.exec())
 
     except Exception as e:
-        QMessageBox.critical(None, "Critical Error", f"Application failed to start:\n{str(e)}")
+        QMessageBox.critical(None, "Critical Error", f"Application failed to start:\n{e!s}")
         sys.exit(1)
 
 

@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
+import asyncio
 import datetime as dt
 from collections.abc import Collection
 from enum import Enum, auto
 from typing import Annotated
 
-import asyncio
-from pydantic import BaseModel, HttpUrl, SecretStr, BeforeValidator, TypeAdapter
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from jinja2 import Template
+from pydantic import BaseModel, BeforeValidator, HttpUrl, SecretStr, TypeAdapter
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from telegram import Bot
 from telegram.constants import ParseMode
 
@@ -26,8 +26,7 @@ class Action(Enum):
 
 
 class Settings(BaseSettings):
-    """
-    Please make sure your .env contains the following variables:
+    """Please make sure your .env contains the following variables:
     - BOT_TOKEN - an API token for your bot.
     - TOPIC_ID - an ID for your group chat topic.
     - GROUP_CHAT_ID - an ID for your group chat.
@@ -47,7 +46,8 @@ class Settings(BaseSettings):
 class Event(BaseModel):
     """Represents an event with its details and location information.
 
-    Attributes:
+    Attributes
+    ----------
         city: City where the event takes place
         title: Name of the event
         title_link: Optional URL with more information about the event
@@ -59,6 +59,7 @@ class Event(BaseModel):
         venue_map_link: URL to the venue's location on a map
         ticket_link: Optional URL where tickets can be purchased
         ticket_info: Optional information about tickets, defaults to "Билет не нужен."
+
     """
 
     city: str
@@ -78,10 +79,13 @@ def get_russian_weekday(date: dt.datetime) -> str:
     """Convert a datetime weekday to its Russian name.
 
     Args:
+    ----
         date: The datetime to get the weekday name for
 
     Returns:
+    -------
         str: Russian name of the weekday
+
     """
     # Russian weekday names
     russian_weekdays = {
@@ -100,11 +104,14 @@ def format_date_range(start_date: dt.datetime, end_date: dt.datetime) -> str:
     """Format a date range in Russian style (e.g., "1-3 января" or "30 декабря - 1 января").
 
     Args:
+    ----
         start_date: Beginning of the date range
         end_date: End of the date range
 
     Returns:
+    -------
         str: Formatted date range string in Russian
+
     """
     russian_months = {
         1: "января",
@@ -149,10 +156,13 @@ def determine_date_range(events: Collection[Event]) -> tuple[dt.datetime, dt.dat
     The end date will be either Sunday or the latest event end date, whichever is later.
 
     Args:
+    ----
         events: Collection of Event objects
 
     Returns:
+    -------
         tuple[dt.datetime, dt.datetime]: Start date and end date
+
     """
     # Get the earliest and latest event dates
     earliest_start = min(event.start_datetime for event in events)
@@ -176,14 +186,17 @@ def generate_event_page(
     """Generate HTML page from events using a Jinja2 template.
 
     Args:
+    ----
         events: Collection of Event objects to include in the page
 
     Returns:
+    -------
         str: Generated HTML content
+
     """
     start_date, end_date = determine_date_range(events)
 
-    with open("template.j2", mode="r", encoding="utf-8") as f:
+    with open("template.j2", encoding="utf-8") as f:
         template = Template(f.read())
     return template.render(
         events=events,
@@ -196,7 +209,9 @@ async def send_html_message(events: Collection[Event]) -> None:
     """Send HTML message with events and create a poll in Telegram.
 
     Args:
+    ----
         events: Collection of Event objects to include in the message
+
     """
     html_message = generate_event_page(events).replace('<meta charset="UTF-8">', "")
     settings = Settings()
@@ -233,7 +248,9 @@ def main(action: Action) -> None:
     """Execute the main program logic.
 
     Args:
+    ----
         action: Whether to write HTML to a file or send to Telegram
+
     """
     events = (
         Event(
