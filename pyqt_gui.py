@@ -1170,12 +1170,10 @@ def main():
             QTextEdit {
                 background-color: white;
             }
-            /* Ensure pasted text maintains the proper colors */
             QTextEdit#description {
                 background-color: white;
                 color: #333333;
             }
-            
             QComboBox {
                 background-color: white;
                 border: 1px solid #C0C0C0;
@@ -1189,7 +1187,7 @@ def main():
                 border: none;
             }
             QComboBox::down-arrow {
-                image: url(down_arrow.png);  # You'd need to provide this image
+                image: url(down_arrow.png);
                 width: 12px;
                 height: 12px;
             }
@@ -1199,6 +1197,129 @@ def main():
                 selection-background-color: #0078D7;
                 selection-color: white;
                 outline: none;
+            }
+
+            QLineEdit::selection, QTextEdit::selection {
+                background-color: #0078D7;
+                color: white;
+            }
+
+            QLineEdit:selected, QTextEdit:selected {
+                background-color: #0078D7;
+                color: white;
+            }
+
+            QMenu {
+                background-color: white;
+                border: 1px solid #C0C0C0;
+                padding: 5px 0px;
+            }
+        
+            QMenu::item {
+                padding: 5px 30px 5px 30px;
+                color: #333333;
+            }
+        
+            QMenu::item:selected {
+                background-color: #0078D7;
+                color: white;
+            }
+        
+            QMenu::icon {
+                padding-left: 10px;
+            }
+
+            QMenu::item:selected QIcon {
+                color: white;
+            }
+        
+            QMenu::item:disabled {
+                color: #999999;
+            }
+        
+            QMenu::separator {
+                height: 1px;
+                background-color: #C0C0C0;
+                margin: 5px 15px;
+            }
+        
+            QMenu::indicator {
+                width: 13px;
+                height: 13px;
+            }
+            
+                QMenu QAction {
+                    color: #333333;
+                }
+            
+                QMenu QAction:selected {
+                    color: white;
+                    background-color: #0078D7;
+                }
+            
+                QMenu QAction QIcon {
+                    color: #333333;
+                }
+            
+                QMenu QAction:selected QIcon {
+                    color: white;
+                }
+        
+            QScrollArea {
+                border: none;
+                background-color: transparent;
+            }
+
+            QScrollBar:vertical {
+                border: none;
+                background-color: #F0F0F0;
+                width: 12px;
+                margin: 0px;
+            }
+
+            QScrollBar::handle:vertical {
+                background-color: #C0C0C0;
+                min-height: 20px;
+                border-radius: 6px;
+            }
+
+            QScrollBar::handle:vertical:hover {
+                background-color: #A0A0A0;
+            }
+
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
+            }
+
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                background: none;
+            }
+
+            QGroupBox {
+                background-color: white;
+                border: 1px solid #C0C0C0;
+                border-radius: 5px;
+                margin-top: 10px;
+                padding-top: 10px;
+            }
+
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                subcontrol-position: top left;
+                padding: 0 5px;
+                color: #333333;
+            }
+
+            QMessageBox {
+                background-color: white;
+            }
+
+            QMessageBox QLabel {
+                color: #333333;
+            }
+
+            QDialog {
+                background-color: #F5F5F5;
             }
         """)
         app.setWindowIcon(QIcon("dutch_rave_bot.ico"))
