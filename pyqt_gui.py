@@ -130,6 +130,13 @@ VENUES: dict[str, VenueInfo] = {
         map_link="https://maps.app.goo.gl/RHnMwDPaaoxaaEda6",
         ticket_link="https://pipdenhaag.stager.co/web/tickets",
     ),
+    "Perron": VenueInfo(
+        name="Perron",
+        city="Роттердам",
+        address="Schiestraat 42",
+        map_link="https://g.co/kgs/VZm2zYh",
+        ticket_link="https://www.perron.nl/",
+    ),
     "RADION": VenueInfo(
         name="RADION",
         city="Амстердам",
@@ -179,6 +186,13 @@ VENUES: dict[str, VenueInfo] = {
         map_link="https://maps.app.goo.gl/61jmWzg7v5Z7ZNFU7",
         ticket_link="https://ra.co/clubs/69321/events",
     ),
+    "Doka": VenueInfo(
+        name="Doka",
+        city="Амстердам",
+        address="Wibautstraat 150",
+        map_link="https://maps.app.goo.gl/LAMoqDmzZ4gRbzxn6",
+        ticket_link="https://www.volkshotel.nl/en/Doka/#agenda",
+    ),
     "WAS.": VenueInfo(
         name="WAS.",
         city="Утрехт",
@@ -203,14 +217,10 @@ class RequiredLabel(QLabel):
     def __init__(self, text: str, required: bool = False):
         super().__init__()
         self.setText(f"{text}{'*' if required else ' (optional)'}")  # Add '(optional)' text
-        if required:
-            self.setStyleSheet(
-                "color: #D32F2F; font-weight: bold;"
-            )  # Red color for required fields
-        else:
-            self.setStyleSheet(
-                "color: #666666; font-weight: normal;"
-            )  # Grey color for optional fields
+        # Red color for required fields, grey color for optional ones
+        self.setStyleSheet(
+            "color: #D32F2F; font-weight: bold;" if required else "color: #666666; font-weight: normal;"
+        )
 
 
 class TimeSelectMenu(QMenu):
